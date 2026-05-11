@@ -91,3 +91,5 @@ exports.deletePost = async (req, res) => {
             error: err.message})
     }
 };
+
+console.log("Timestamps test:", new Date());

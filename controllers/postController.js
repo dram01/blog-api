@@ -18,7 +18,7 @@ exports.createPost = async (req, res) => {
 
 exports.getPosts = async (req, res) => {
     try {
-        const posts = await Post.find();
+        const posts = await Post.find().populate("user", "username");
         res.json(posts);
     }   catch (err) {
         res.status(500).json({ error: err.message });
@@ -63,12 +63,31 @@ exports.updatePost = async (req, res) => {
 
 exports.deletePost = async (req, res) => {
     try {
-        const post = await Post.findByIdAndDelete(req.params.id);
+        const post = await Post.findById(req.params.id);
 
-        if (!post) return res.status(404).json ({message: "Post not found"});
+        if (!post) {
+            return res.status(404).json({
+                message: "Post not found"
+            });
+        }
 
-        res.json({message: "Post deleted successfully" });
+        if (post.user.toString() !== req.user.id) {
+            return res.status(403).json({
+                message: "Not authorized"
+            });
+        }
+        
+        await post.deleteOne();
+
+        res.json({
+            message: "Did u just delete something embarrasing?"
+        });
+
+        
+
+        
     }   catch (err) {
-        res.status(500).json ({error: err.message});
+        res.status(500).json ({
+            error: err.message})
     }
 };
